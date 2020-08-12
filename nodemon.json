@@ -1,0 +1,7 @@
+{
+  "env": {
+    "MONGO_USER": "illyas",
+    "MONGO_PASSWORD": "illyas-cusat",
+    "MONGO_DB": "event-management"
+  }
+}
