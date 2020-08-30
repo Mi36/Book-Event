@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {Text, View, TextInput, TouchableOpacity} from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 
 export default class Login extends Component {
   constructor(props) {
@@ -29,7 +30,7 @@ export default class Login extends Component {
         `,
     };
 
-    fetch('http://localhost:8000/graphql', {
+    fetch('http://192.168.18.9:8000/graphql', {
       method: 'POST',
       body: JSON.stringify(request),
       headers: {
@@ -52,9 +53,12 @@ export default class Login extends Component {
         //     resData.data.login.tokenExpiration,
         //   );
         // }
+        AsyncStorage.setItem('@storage_Key', resData.data.login.token);
+
+        this.props.navigation.navigate('Events');
       })
       .catch((err) => {
-        console.log(err);
+        console.log('as', err);
       });
   };
 

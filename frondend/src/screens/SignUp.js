@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {Text, View, TextInput, TouchableOpacity, Button} from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 
 export default class SignUp extends Component {
   constructor(props) {
@@ -9,10 +10,24 @@ export default class SignUp extends Component {
       password: '',
     };
   }
-
+  componentDidMount() {
+    this.getData();
+  }
+  getData = async () => {
+    try {
+      const value = await AsyncStorage.getItem('@storage_Key');
+      console.log(value);
+      if (value !== null) {
+        this.props.navigation.navigate('Events');
+      }
+    } catch (e) {
+      // error reading value
+    }
+  };
   submitHandler = () => {
     const email = this.state.email;
     const password = this.state.password;
+    console.log(email, password);
     if (email.trim().length === 0 || password.trim().length === 0) {
       return;
     }
@@ -27,7 +42,7 @@ export default class SignUp extends Component {
         }`,
     };
 
-    fetch('http://localhost:8000/graphql', {
+    fetch('http://192.168.18.9:8000/graphql', {
       method: 'POST',
       body: JSON.stringify(requestBody),
       headers: {
@@ -35,6 +50,7 @@ export default class SignUp extends Component {
       },
     })
       .then((res) => {
+        console.log(res.status);
         if (res.status !== 200 && res.status !== 201) {
           throw new Error('Failed!');
         }
