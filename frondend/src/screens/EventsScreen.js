@@ -5,30 +5,35 @@ import {
   TouchableOpacity,
   TextInput,
   StyleSheet,
+  FlatList,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-community/async-storage';
 
 export default class EventsScreen extends Component {
   state = {
-    date: new Date(1598051730000),
+    date: new Date(),
     title: '',
     price: '',
     description: '',
     token: null,
     events: null,
+    userId: null,
+    loading: false,
+    dummy: false,
   };
   componentDidMount() {
     this.getData();
     this.fetchData();
-    console.log('sdds', this.state.events);
   }
 
   getData = async () => {
     try {
       const value = await AsyncStorage.getItem('@storage_Key');
+      const userId = await AsyncStorage.getItem('@userId');
       if (value !== null) {
         this.setState({token: value});
+        this.setState({userId});
         return;
       }
     } catch (e) {
@@ -39,6 +44,7 @@ export default class EventsScreen extends Component {
   removeValue = async () => {
     try {
       await AsyncStorage.removeItem('@storage_Key');
+      await AsyncStorage.removeItem('@userId');
       this.props.navigation.navigate('Login');
     } catch (e) {
       // remove error
@@ -48,6 +54,7 @@ export default class EventsScreen extends Component {
   };
 
   fetchData = () => {
+    this.setState({loading: true});
     const requestBody = {
       query: `
           query {
@@ -81,7 +88,7 @@ export default class EventsScreen extends Component {
       })
       .then((resData) => {
         console.log(resData);
-        this.setState({events: resData});
+        this.setState({events: resData.data.events, loading: false});
         // const events = resData.data.events;
         // if (this.isActive) {
         //   this.setState({events: events, isLoading: false});
@@ -90,7 +97,7 @@ export default class EventsScreen extends Component {
       .catch((err) => {
         console.log(err);
         if (this.isActive) {
-          this.setState({isLoading: false});
+          this.setState({loading: false});
         }
       });
   };
@@ -124,15 +131,13 @@ export default class EventsScreen extends Component {
         return res.json();
       })
       .then((resData) => {
-        console.log(resData);
-        this.setState({events: resData});
+        this.setState({events: resData.data.event});
         // const events = resData.data.events;
         // if (this.isActive) {
         //   this.setState({events: events, isLoading: false});
         // }
       })
       .catch((err) => {
-        console.log(err);
         if (this.isActive) {
           this.setState({isLoading: false});
         }
@@ -140,7 +145,6 @@ export default class EventsScreen extends Component {
   };
 
   submitHandler = () => {
-    console.log(this.state);
     const {title, description, date} = this.state;
     const price = +this.state.price;
 
@@ -164,7 +168,6 @@ export default class EventsScreen extends Component {
       },
     };
 
-    console.log('WORKED', this.state.token);
     fetch('http://192.168.18.9:8000/graphql', {
       method: 'POST',
       body: JSON.stringify(requestBody),
@@ -182,17 +185,35 @@ export default class EventsScreen extends Component {
       })
       .then((resData) => {
         console.log(resData);
-        // if (resData.data.login.token) {
-        //   this.context.login(
-        //     resData.data.login.token,
-        //     resData.data.login.userId,
-        //     resData.data.login.tokenExpiration,
-        //   );
-        // }
       })
       .catch((err) => {
         console.log(err);
       });
+  };
+
+  renderItem = ({item}) => {
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          this.props.navigation.navigate('Bookings', {
+            item: item,
+            token: this.state.token,
+          });
+        }}>
+        <View
+          item={item}
+          style={{
+            backgroundColor: 'pink',
+            marginHorizontal: 25,
+            marginTop: 10,
+          }}>
+          <Text>{item.title}</Text>
+          {this.state.userId === item.creator._id && (
+            <Text>You are the owner of the event</Text>
+          )}
+        </View>
+      </TouchableOpacity>
+    );
   };
   render() {
     return (
@@ -211,11 +232,7 @@ export default class EventsScreen extends Component {
             this.setState({price});
           }}
         />
-        <TextInput
-          style={styles.input}
-          placeholder="Date"
-          value={this.state.date}
-        />
+
         <DateTimePicker
           testID="dateTimePicker"
           value={this.state.date}
@@ -250,6 +267,15 @@ export default class EventsScreen extends Component {
             <Text>Logout</Text>
           </TouchableOpacity>
         </View>
+        {this.state.loading ? (
+          <Text>loading...</Text>
+        ) : (
+          <FlatList
+            data={this.state.events}
+            renderItem={this.renderItem}
+            keyExtractor={(item) => item._id}
+          />
+        )}
       </View>
     );
   }

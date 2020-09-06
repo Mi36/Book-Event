@@ -54,7 +54,9 @@ export default class Login extends Component {
         //   );
         // }
         AsyncStorage.setItem('@storage_Key', resData.data.login.token);
-
+        AsyncStorage.setItem('@userId', resData.data.login.userId);
+      })
+      .then(() => {
         this.props.navigation.navigate('Events');
       })
       .catch((err) => {
