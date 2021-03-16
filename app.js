@@ -2,11 +2,11 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const graphqlHttp = require("express-graphql");
 const mongoose = require("mongoose");
-const ENV = require("./env");
 
 const graphQlSchema = require("./graphql/schema/index");
 const graphQlResolvers = require("./graphql/resolvers/index");
 const isAuth = require("./middleware/is-auth");
+const PORT = process.env.PORT || 8000;
 
 const app = express();
 
@@ -32,14 +32,17 @@ app.use(
     graphiql: true,
   })
 );
+app.get("/", (req, res) => {
+  res.send("Hello to event API");
+});
 
 mongoose
   .connect(
-    `mongodb+srv://${ENV.username}:${ENV.password}@testcluster-ib6gk.mongodb.net/${ENV.dbname}?retryWrites=true&w=majority`,
+    `mongodb+srv://udemy:udemy@testcluster-ib6gk.mongodb.net/<dbname>?retryWrites=true&w=majority`,
     { useNewUrlParser: true }
   )
   .then(() => {
-    app.listen(8000);
+    app.listen(PORT);
     console.log("connected to port 8000");
   })
   .catch((err) => {
