@@ -31,7 +31,7 @@ export default function BookingsScreen({navigation, route}) {
     `,
     };
 
-    fetch('http://localhost:8000/graphql', {
+    fetch('https://event-booking-app-graphql.herokuapp.com/graphql', {
       method: 'POST',
       body: JSON.stringify(Body),
       headers: {
@@ -71,7 +71,7 @@ export default function BookingsScreen({navigation, route}) {
       },
     };
 
-    fetch('http://localhost:8000/graphql', {
+    fetch('https://event-booking-app-graphql.herokuapp.com/graphql', {
       method: 'POST',
       body: JSON.stringify(requestBody),
       headers: {
@@ -106,7 +106,7 @@ export default function BookingsScreen({navigation, route}) {
     `,
     };
 
-    fetch('http://localhost:8000/graphql', {
+    fetch('https://event-booking-app-graphql.herokuapp.com/graphql', {
       method: 'POST',
       body: JSON.stringify(Body),
       headers: {

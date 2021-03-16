@@ -38,7 +38,7 @@ app.get("/", (req, res) => {
 
 mongoose
   .connect(
-    `mongodb+srv://udemy:udemy@testcluster-ib6gk.mongodb.net/<dbname>?retryWrites=true&w=majority`,
+    `mongodb+srv://username:password@testcluster-ib6gk.mongodb.net/<dbname>?retryWrites=true&w=majority`,
     { useNewUrlParser: true }
   )
   .then(() => {

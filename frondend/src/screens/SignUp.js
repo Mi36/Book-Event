@@ -42,7 +42,7 @@ export default class SignUp extends Component {
         }`,
     };
 
-    fetch('http://192.168.18.9:8000/graphql', {
+    fetch('https://event-booking-app-graphql.herokuapp.com/graphql', {
       method: 'POST',
       body: JSON.stringify(requestBody),
       headers: {
