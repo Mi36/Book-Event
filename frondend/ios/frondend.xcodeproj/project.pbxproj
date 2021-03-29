@@ -161,7 +161,6 @@
 				9711F34BFB6CB8E0688DA0A4 /* Pods-frondend-tvOSTests.debug.xcconfig */,
 				A5EED0F8657CE716CB6CC000 /* Pods-frondend-tvOSTests.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
