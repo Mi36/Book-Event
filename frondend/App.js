@@ -22,7 +22,6 @@ export default function App() {
         <Stack.Screen name="Register" component={SignUp} />
         <Stack.Screen name="Events" component={EventsScreen} />
         <Stack.Screen name="Bookings" component={BookingsScreen} />
-
         <Stack.Screen name="Login" component={Login} />
       </Stack.Navigator>
     </NavigationContainer>
