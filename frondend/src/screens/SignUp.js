@@ -1,120 +1,99 @@
-import React, {Component} from 'react';
-import {Text, View, TextInput, TouchableOpacity, Button} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+  SafeAreaView,
+  StyleSheet,
+} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
+import Header from '../components/Header';
+import Input from '../components/Input';
+import Button from '../components/Button';
+import Colors from '../styles/Colors';
+import {useMutation} from '@apollo/client';
+import {CREATE_USER} from '../GraphQL/Mutations';
+import KeyboardAvoidingViewWrapper from '../components/KBAvoidingView';
 
-export default class SignUp extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      email: '',
-      password: '',
-    };
-  }
-  componentDidMount() {
-    this.getData();
-  }
-  getData = async () => {
+const SignUp = (props) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const [createUser, {error, data}] = useMutation(CREATE_USER);
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  const getData = async () => {
     try {
       const value = await AsyncStorage.getItem('@storage_Key');
-      console.log(value);
       if (value !== null) {
-        this.props.navigation.navigate('Events');
+        props.navigation.navigate('Events');
       }
     } catch (e) {
       // error reading value
     }
   };
-  submitHandler = () => {
-    const email = this.state.email;
-    const password = this.state.password;
-    console.log(email, password);
+
+  const submitHandler = () => {
     if (email.trim().length === 0 || password.trim().length === 0) {
       return;
     }
-
-    const requestBody = {
-      query: `
-        mutation{
-            createUser(userInput:{email:"${email}",password:"${password}"}){
-                _id
-                email
-            }
-        }`,
-    };
-
-    fetch('https://event-booking-app-graphql.herokuapp.com/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
+    createUser({
+      variables: {
+        userInput: {
+          email: email,
+          password: password,
+        },
       },
-    })
-      .then((res) => {
-        console.log(res.status);
-        if (res.status !== 200 && res.status !== 201) {
-          throw new Error('Failed!');
-        }
-        return res.json();
-      })
-      .then((resData) => {
-        console.log(resData);
-        // if (resData.data.login.token) {
-        //   this.context.login(
-        //     resData.data.login.token,
-        //     resData.data.login.userId,
-        //     resData.data.login.tokenExpiration,
-        //   );
-        // }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    });
+    if (data) {
+      props.navigation.navigate('Login');
+    }
+    if (error) {
+      console.log(error);
+    }
   };
 
-  render() {
-    return (
-      <View>
-        <TextInput
-          placeholder="email"
-          autoCapitalize="none"
-          style={{
-            marginHorizontal: 10,
-            borderWidth: 2,
-            borderColor: 'black',
-            marginVertical: 10,
-          }}
-          value={this.state.email}
-          onChangeText={(text) => this.setState({email: text})}
-        />
-        <TextInput
-          placeholder="password"
-          autoCapitalize="none"
-          style={{
-            marginHorizontal: 10,
-            borderWidth: 2,
-            borderColor: 'black',
-            marginVertical: 10,
-          }}
-          value={this.state.password}
-          onChangeText={(text) => this.setState({password: text})}
-        />
-        <TouchableOpacity
-          onPress={this.submitHandler}
-          style={{
-            width: '100%',
-            height: 45,
-            backgroundColor: 'pink',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-          <Text>Submit</Text>
-        </TouchableOpacity>
+  return (
+    <SafeAreaView style={{flexGrow: 1, backgroundColor: Colors.green1}}>
+      <Header pageName={'Register'} backButtonInvisible />
+      <KeyboardAvoidingViewWrapper>
+        <View style={styles.main}>
+          <Input
+            textContentType="emailAddress"
+            autoCompleteType="email"
+            keyboardType="email-address"
+            returnKeyType="next"
+            placeholder="email"
+            value={email}
+            onChangeText={setEmail}
+          />
+          <Input
+            placeholder="password"
+            autoCapitalize="none"
+            value={password}
+            onChangeText={setPassword}
+          />
+          <Button label={'Register'} onPress={submitHandler} />
+          <Button
+            label="Go to Login"
+            onPress={() => props.navigation.navigate('Login')}
+          />
+        </View>
+      </KeyboardAvoidingViewWrapper>
+    </SafeAreaView>
+  );
+};
 
-        <Button
-          title="Go to Login"
-          onPress={() => this.props.navigation.navigate('Login')}
-        />
-      </View>
-    );
-  }
-}
+const styles = StyleSheet.create({
+  main: {
+    backgroundColor: Colors.green1,
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+});
+
+export default SignUp;

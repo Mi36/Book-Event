@@ -1,108 +1,87 @@
-import React, {Component} from 'react';
-import {Text, View, TextInput, TouchableOpacity} from 'react-native';
+import {useLazyQuery, useMutation} from '@apollo/client';
 import AsyncStorage from '@react-native-community/async-storage';
+import React, {useEffect, useState} from 'react';
+import {SafeAreaView, StyleSheet, View} from 'react-native';
+import Button from '../components/Button';
+import Header from '../components/Header';
+import Input from '../components/Input';
+import KeyboardAvoidingViewWrapper from '../components/KBAvoidingView';
+import {CREATE_EVENT} from '../GraphQL/Mutations';
+import {LOGIN} from '../GraphQL/Queries';
+import Colors from '../styles/Colors';
 
-export default class Login extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      email: '',
-      password: '',
-    };
-  }
+const Login = (props) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  submitHandler = () => {
-    const email = this.state.email;
-    const password = this.state.password;
+  // normal query fetching
+  // const {error, loading, data} = useQuery(LOGIN, {
+  //   variables: {
+  //     email: email,
+  //     password: password,
+  //   },
+  // });
+
+  //query fetching according to user click
+  const [login, {loading, data, error}] = useLazyQuery(LOGIN, {
+    variables: {
+      email: email,
+      password: password,
+    },
+  });
+
+  useEffect(() => {
+    if (data) {
+      console.log(data.login);
+      AsyncStorage.setItem('@storage_Key', data.login.token);
+      AsyncStorage.setItem('@userId', data.login.userId);
+      props.navigation.navigate('Events');
+    }
+    if (error) {
+      console.log(error);
+    }
+  }, [data, loading, error]);
+
+  const submitHandler = () => {
     if (email.trim().length === 0 || password.trim().length === 0) {
       return;
     }
-
-    const request = {
-      query: `
-          query {
-            login(email: "${email}", password: "${password}") {
-              userId
-              token
-              tokenExpiration
-            }
-          }
-        `,
-    };
-
-    fetch('https://event-booking-app-graphql.herokuapp.com/graphql', {
-      method: 'POST',
-      body: JSON.stringify(request),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((res) => {
-        console.log(res.status);
-        if (res.status !== 200 && res.status !== 201) {
-          throw new Error('Failed!');
-        }
-        return res.json();
-      })
-      .then((resData) => {
-        console.log(resData);
-        // if (resData.data.login.token) {
-        //   this.context.login(
-        //     resData.data.login.token,
-        //     resData.data.login.userId,
-        //     resData.data.login.tokenExpiration,
-        //   );
-        // }
-        AsyncStorage.setItem('@storage_Key', resData.data.login.token);
-        AsyncStorage.setItem('@userId', resData.data.login.userId);
-      })
-      .then(() => {
-        this.props.navigation.navigate('Events');
-      })
-      .catch((err) => {
-        console.log('as', err);
-      });
+    login();
   };
 
-  render() {
-    return (
-      <View>
-        <TextInput
-          placeholder="email"
-          autoCapitalize="none"
-          style={{
-            marginHorizontal: 10,
-            borderWidth: 2,
-            borderColor: 'black',
-            marginVertical: 10,
-          }}
-          value={this.state.email}
-          onChangeText={(text) => this.setState({email: text})}
-        />
-        <TextInput
-          placeholder="password"
-          autoCapitalize="none"
-          style={{
-            marginHorizontal: 10,
-            borderWidth: 2,
-            borderColor: 'black',
-            marginVertical: 10,
-          }}
-          value={this.state.password}
-          onChangeText={(text) => this.setState({password: text})}
-        />
-        <TouchableOpacity
-          onPress={this.submitHandler}
-          style={{
-            width: '100%',
-            height: 45,
-            backgroundColor: 'pink',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-          <Text>Submit</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-}
+  return (
+    <SafeAreaView style={{flexGrow: 1, backgroundColor: Colors.green1}}>
+      <Header pageName={'Login'} onBack={() => props.navigation.goBack()} />
+      <KeyboardAvoidingViewWrapper>
+        <View style={styles.main}>
+          <Input
+            textContentType="emailAddress"
+            autoCompleteType="email"
+            keyboardType="email-address"
+            returnKeyType="next"
+            placeholder="email"
+            value={email}
+            onChangeText={setEmail}
+          />
+          <Input
+            placeholder="password"
+            autoCapitalize="none"
+            value={password}
+            onChangeText={setPassword}
+          />
+          <Button label={'Login'} onPress={submitHandler} />
+        </View>
+      </KeyboardAvoidingViewWrapper>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  main: {
+    backgroundColor: Colors.green1,
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+});
+
+export default Login;
