@@ -6,9 +6,13 @@ import {
   TextInput,
   StyleSheet,
   FlatList,
+  SafeAreaView,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-community/async-storage';
+import Colors from '../styles/Colors';
+import Input from '../components/Input';
+import Button from '../components/Button';
 
 export default class EventsScreen extends Component {
   state = {
@@ -217,16 +221,21 @@ export default class EventsScreen extends Component {
   };
   render() {
     return (
-      <View>
-        <TextInput
+      <SafeAreaView style={styles.container}>
+        {/* <TextInput
           style={styles.input}
           placeholder="Title"
           onChangeText={(title) => {
             this.setState({title});
           }}
+        /> */}
+        <Input
+          placeholder="Title"
+          onChangeText={(title) => {
+            this.setState({title});
+          }}
         />
-        <TextInput
-          style={styles.input}
+        <Input
           placeholder="Price"
           onChangeText={(price) => {
             this.setState({price});
@@ -245,27 +254,16 @@ export default class EventsScreen extends Component {
             this.setState({date: currentDate});
           }}
         />
-        <TextInput
-          style={styles.input}
+        <Input
           placeholder="Description"
           onChangeText={(description) => {
             this.setState({description});
           }}
         />
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.buttonStyle} onPress={() => {}}>
-            <Text>CANCEL</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.buttonStyle}
-            onPress={this.submitHandler}>
-            <Text>CREATE EVENT</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.buttonStyle}
-            onPress={this.removeValue}>
-            <Text>Logout</Text>
-          </TouchableOpacity>
+        <View>
+          <Button label={'CREATE EVENT'} onPress={this.submitHandler} />
+          <Button label={'CANCEL'} onPress={() => {}} />
+          <Button label={'LOGOUT'} onPress={this.removeValue} />
         </View>
         {this.state.loading ? (
           <Text>loading...</Text>
@@ -276,7 +274,7 @@ export default class EventsScreen extends Component {
             keyExtractor={(item) => item._id}
           />
         )}
-      </View>
+      </SafeAreaView>
     );
   }
 }
@@ -286,9 +284,11 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     borderWidth: 1,
   },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+  container: {
+    paddingEnd: 20,
+    paddingStart: 20,
+    backgroundColor: Colors.green1,
+    flex: 1,
   },
   buttonStyle: {
     width: 100,

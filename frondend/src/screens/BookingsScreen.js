@@ -1,5 +1,14 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, Button, FlatList, TouchableOpacity} from 'react-native';
+import {
+  View,
+  Text,
+  Button,
+  FlatList,
+  TouchableOpacity,
+  SafeAreaView,
+} from 'react-native';
+import Header from '../components/Header';
+import Colors from '../styles/Colors';
 
 export default function BookingsScreen({navigation, route}) {
   const [A, setA] = useState(null);
@@ -154,7 +163,8 @@ export default function BookingsScreen({navigation, route}) {
   };
   console.log(bookings);
   return (
-    <View>
+    <SafeAreaView style={{backgroundColor: Colors.green1, flex: 1}}>
+      <Header pageName={'BOOK EVENT'} onBack={() => navigation.goBack()} />
       <Button title="book" onPress={submitHandler}></Button>
       <Button title="show list" onPress={fetchBookings}></Button>
       <FlatList
@@ -162,6 +172,6 @@ export default function BookingsScreen({navigation, route}) {
         renderItem={renderItem}
         keyExtractor={(item) => item._id}
       />
-    </View>
+    </SafeAreaView>
   );
 }

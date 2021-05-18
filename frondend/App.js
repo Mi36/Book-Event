@@ -5,22 +5,23 @@
  * @format
  * @flow strict-local
  */
-import 'react-native-gesture-handler';
 import {
   ApolloClient,
+  ApolloProvider,
+  from,
   HttpLink,
   InMemoryCache,
-  from,
-  ApolloProvider,
 } from '@apollo/client';
-import React from 'react';
+import {onError} from '@apollo/client/link/error';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
-import SignUp from './src/screens/SignUp';
-import Login from './src/screens/Login';
-import EventsScreen from './src/screens/EventsScreen';
+import React from 'react';
+import 'react-native-gesture-handler';
+import {GRAPH_QL_URL} from './src/common/constants';
 import BookingsScreen from './src/screens/BookingsScreen';
-import {onError} from '@apollo/client/link/error';
+import EventsScreen from './src/screens/EventsScreen';
+import Login from './src/screens/Login';
+import SignUp from './src/screens/SignUp';
 
 const errorLink = onError(({graphQLErrors, networkError}) => {
   if (graphQLErrors) {
@@ -33,7 +34,7 @@ const errorLink = onError(({graphQLErrors, networkError}) => {
 const link = from([
   errorLink,
   new HttpLink({
-    uri: 'https://event-booking-app-graphql.herokuapp.com/graphql',
+    uri: GRAPH_QL_URL,
   }),
 ]);
 
