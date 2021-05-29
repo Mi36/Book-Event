@@ -17,6 +17,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import React from 'react';
 import 'react-native-gesture-handler';
+import {getAsyncStorage} from './src/asyncStorage';
 import {GRAPH_QL_URL} from './src/common/constants';
 import BookingsScreen from './src/screens/BookingsScreen';
 import EventsScreen from './src/screens/EventsScreen';
@@ -39,7 +40,10 @@ const link = from([
 ]);
 
 const client = new ApolloClient({
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({}),
+  headers: {
+    authorization: getAsyncStorage('@storage_Key') || '',
+  },
   link: link,
 });
 

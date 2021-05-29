@@ -2,6 +2,7 @@ import {useLazyQuery, useMutation} from '@apollo/client';
 import AsyncStorage from '@react-native-community/async-storage';
 import React, {useEffect, useState} from 'react';
 import {SafeAreaView, StyleSheet, View} from 'react-native';
+import {setAsyncStorage} from '../asyncStorage';
 import Button from '../components/Button';
 import Header from '../components/Header';
 import Input from '../components/Input';
@@ -33,8 +34,8 @@ const Login = (props) => {
   useEffect(() => {
     if (data) {
       console.log(data.login);
-      AsyncStorage.setItem('@storage_Key', data.login.token);
-      AsyncStorage.setItem('@userId', data.login.userId);
+      setAsyncStorage('@storage_Key', data.login.token);
+      setAsyncStorage('@userId', data.login.userId);
       props.navigation.navigate('Events');
     }
     if (error) {
