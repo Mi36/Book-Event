@@ -1,51 +1,33 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-import {
-  ApolloClient,
-  ApolloProvider,
-  from,
-  HttpLink,
-  InMemoryCache,
-} from '@apollo/client';
-import {onError} from '@apollo/client/link/error';
+import {ApolloClient, ApolloProvider, gql} from '@apollo/client';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import React from 'react';
 import 'react-native-gesture-handler';
-import {getAsyncStorage} from './src/asyncStorage';
-import {GRAPH_QL_URL} from './src/common/constants';
+import {cache} from './src/cache';
 import BookingsScreen from './src/screens/BookingsScreen';
 import EventsScreen from './src/screens/EventsScreen';
 import Login from './src/screens/Login';
 import SignUp from './src/screens/SignUp';
 
-const errorLink = onError(({graphQLErrors, networkError}) => {
-  if (graphQLErrors) {
-    graphQLErrors.map(({message, location, path}) => {
-      alert(`Graphql error ${message}`);
-    });
-  }
-});
-
-const link = from([
-  errorLink,
-  new HttpLink({
-    uri: GRAPH_QL_URL,
-  }),
-]);
-
 const client = new ApolloClient({
-  cache: new InMemoryCache({}),
-  headers: {
-    authorization: getAsyncStorage('@storage_Key') || '',
-  },
-  link: link,
+  cache,
+  uri: 'http://localhost:4000/graphql',
 });
+
+client
+  .query({
+    query: gql`
+      query TestQuery {
+        launch(id: 56) {
+          id
+          mission {
+            name
+          }
+        }
+      }
+    `,
+  })
+  .then((result) => console.log(result));
 
 const Stack = createStackNavigator();
 export default function App() {
