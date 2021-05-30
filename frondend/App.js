@@ -3,6 +3,8 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import React from 'react';
 import 'react-native-gesture-handler';
+import {typeDefs} from './src';
+import {getAsyncStorage} from './src/asyncStorage';
 import {cache} from './src/cache';
 import BookingsScreen from './src/screens/BookingsScreen';
 import EventsScreen from './src/screens/EventsScreen';
@@ -12,7 +14,18 @@ import SignUp from './src/screens/SignUp';
 const client = new ApolloClient({
   cache,
   uri: 'http://localhost:4000/graphql',
+  headers: {
+    authorization: getAsyncStorage('token') || '',
+  },
+  typeDefs: typeDefs,
 });
+
+console.log(
+  `get`,
+  getAsyncStorage('token').then((e) => {
+    console.log('dddddd', e);
+  }),
+);
 
 client
   .query({

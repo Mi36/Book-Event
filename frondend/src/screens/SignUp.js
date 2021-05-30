@@ -1,6 +1,8 @@
-import {gql, useQuery} from '@apollo/client';
+import {gql, useMutation, useQuery} from '@apollo/client';
 import React, {useState} from 'react';
 import {Button, SafeAreaView, StyleSheet, Text} from 'react-native';
+import {setAsyncStorage} from '../asyncStorage';
+import {isLoggedInVar} from '../cache';
 import Header from '../components/Header';
 import Colors from '../styles/Colors';
 
@@ -70,7 +72,54 @@ export const GET_MY_TRIPS = gql`
   ${LAUNCH_TILE_DATA}
 `;
 
+//mutations
+export const LOGIN_USER = gql`
+  mutation Login($email: String!) {
+    login(email: $email) {
+      id
+      token
+    }
+  }
+`;
+
+//local query
+const IS_LOGGED_IN = gql`
+  query IsUserLoggedIn {
+    isLoggedIn @client
+  }
+`;
+
+//@client makes call from local not from server
+export const GET_CART_ITEMS = gql`
+  query GetCartItems {
+    cartItems @client
+  }
+`;
+
 const SignUp = (props) => {
+  const {data: cartData, loading: cartLoading, error: cartError} = useQuery(
+    GET_CART_ITEMS,
+  );
+  const {data: loggedIn} = useQuery(IS_LOGGED_IN);
+  console.log(`loggedIn`, loggedIn);
+
+  const [
+    login,
+    {loading: loginLoading, error: loginError, data: loginData},
+  ] = useMutation(LOGIN_USER, {
+    onCompleted({login}) {
+      if (login) {
+        setAsyncStorage('token', login.token);
+        setAsyncStorage('userId', login.id);
+        isLoggedInVar(true);
+      }
+    },
+  });
+
+  if (loading) console.log(`loadingddddddddd`, loginLoading);
+  if (error) console.log(`loginErrorrrrrrrrr`, loginError);
+  if (data) console.log(`loginDataaaaaaaaaa`, loginData);
+
   const {
     data: trips,
     loading: tripsLoading,
